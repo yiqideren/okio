@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -11,6 +13,15 @@
 
   <artifactId>okio</artifactId>
   <name>Okio</name>
+
+  <properties>
+    <java.bootstrap.classes>${java.home}/lib/rt.jar</java.bootstrap.classes>
+    <java.cryptographic.extension.classes>${java.home}/lib/jce.jar
+    </java.cryptographic.extension.classes>
+    <java.secure.socket.extension.classes>${java.home}/lib/jsse.jar
+    </java.secure.socket.extension.classes>
+  </properties>
+
 
   <dependencies>
     <dependency>
@@ -23,6 +34,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.proguard</groupId>
+      <artifactId>proguard-base</artifactId>
+      <version>5.0</version>
     </dependency>
   </dependencies>
 
@@ -47,6 +64,50 @@
             <version>1.1</version>
           </signature>
         </configuration>
+      </plugin>
+
+
+      <plugin>
+        <groupId>com.github.wvengen</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>proguard</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <proguardVersion>5.0</proguardVersion>
+          <obfuscate>true</obfuscate>
+          <options>
+            <!--<option>-optimizations !class/*,!field/*,method/marking/*,!method/removal/*,code/removal/*</option>-->
+            <!--<option>-optimizations !class/*,!field/*,method/marking/*,!method/removal/*,code/removal/*</option>-->
+            <!--<option>-optimizations !class/*,!field/*,method/marking/*,!method/removal/*,code/removal/*</option>-->
+            <option>-allowaccessmodification</option>
+            <option>-keep class *</option>
+            <option>-keep public class * { public protected *; }</option>
+            <option>-dontobfuscate</option>
+          </options>
+          <libs>
+            <lib>${java.bootstrap.classes}</lib>
+            <lib>${java.cryptographic.extension.classes}</lib>
+            <lib>${java.secure.socket.extension.classes}</lib>
+          </libs>
+          <injar>${project.build.finalName}.jar</injar>
+          <outjar>${project.build.finalName}-small.jar</outjar>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+          <addMavenDescriptor>false</addMavenDescriptor>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>net.sf.proguard</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>5.0</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
